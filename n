@@ -1,0 +1,2 @@
+model.save_pretrained("/kaggle/working/qwen3_it_law_lora")
+tokenizer.save_pretrained("/kaggle/working/qwen3_it_law_lora")
