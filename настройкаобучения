@@ -1,0 +1,35 @@
+from trl import SFTTrainer, SFTConfig
+from unsloth.chat_templates import train_on_responses_only
+
+trainer = SFTTrainer(
+    model = model,
+    tokenizer = tokenizer,
+    train_dataset = train_ds,
+    eval_dataset = val_ds,
+    args = SFTConfig(
+        dataset_text_field = "text",
+        per_device_train_batch_size = 2,
+        gradient_accumulation_steps = 4,
+        num_train_epochs = 3,          # для пробы: убери эту строку и поставь max_steps = 10
+        learning_rate = 2e-4,
+        warmup_steps = 5,
+        lr_scheduler_type = "linear",
+        optim = "adamw_8bit",
+        weight_decay = 0.01,
+        logging_steps = 5,
+        eval_strategy = "epoch",
+        save_strategy = "no",
+        seed = 3407,
+        report_to = "none",
+        fp16 = not torch.cuda.is_bf16_supported(),
+        bf16 = torch.cuda.is_bf16_supported(),
+        output_dir = "outputs",
+    ),
+)
+
+# учим модель только на ответах, а не на вопросах и системном промпте
+trainer = train_on_responses_only(
+    trainer,
+    instruction_part = "<|im_start|>user\n",
+    response_part = "<|im_start|>assistant\n",
+)
